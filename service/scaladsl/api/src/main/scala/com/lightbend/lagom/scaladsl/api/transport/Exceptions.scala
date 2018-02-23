@@ -246,7 +246,9 @@ object TransportException {
 
 }
 
-final class UnsupportedMediaType(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) extends TransportException(errorCode, exceptionMessage)
+final class UnsupportedMediaType(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage, cause: Throwable) extends TransportException(errorCode, exceptionMessage, cause) {
+  def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) = this(errorCode, exceptionMessage, null)
+}
 
 object UnsupportedMediaType {
   val ErrorCode = TransportErrorCode.UnsupportedMediaType
@@ -261,16 +263,22 @@ object UnsupportedMediaType {
     )
 }
 
-final class NotAcceptable(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) extends TransportException(errorCode, exceptionMessage)
+final class NotAcceptable(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage, cause: Throwable) extends TransportException(errorCode, exceptionMessage, cause) {
+  def this(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage) = this(errorCode, exceptionMessage, null)
+}
 
 object NotAcceptable {
   val ErrorCode = TransportErrorCode.NotAcceptable
 
-  def apply(requested: immutable.Seq[MessageProtocol], supported: MessageProtocol) =
-    new NotAcceptable(ErrorCode, new ExceptionMessage(
-      classOf[NotAcceptable].getSimpleName,
-      s"The requested protocol type/versions: (${requested.mkString(", ")}) could not be satisfied by the server, the default that the server uses is: $supported"
-    ))
+  def apply(requested: immutable.Seq[MessageProtocol], supported: MessageProtocol, cause: Throwable = null) =
+    new NotAcceptable(
+      ErrorCode,
+      new ExceptionMessage(
+        classOf[NotAcceptable].getSimpleName,
+        s"The requested protocol type/versions: (${requested.mkString(", ")}) could not be satisfied by the server, the default that the server uses is: $supported"
+      ),
+      cause
+    )
 }
 
 final class SerializationException(errorCode: TransportErrorCode, exceptionMessage: ExceptionMessage, cause: Throwable) extends TransportException(errorCode, exceptionMessage, cause) {
@@ -286,6 +294,11 @@ object SerializationException {
   )
 
   def apply(cause: Throwable) = new SerializationException(
+    ErrorCode,
+    new ExceptionMessage(classOf[SerializationException].getSimpleName, ErrorCode.description), cause
+  )
+
+  def apply(message: String, cause: Throwable) = new SerializationException(
     ErrorCode,
     new ExceptionMessage(classOf[SerializationException].getSimpleName, ErrorCode.description), cause
   )
