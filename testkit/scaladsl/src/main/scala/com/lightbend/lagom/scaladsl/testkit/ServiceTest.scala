@@ -244,7 +244,7 @@ object ServiceTest {
 
         ClusterConfiguration ++ Configuration(TestUtil.persistenceConfig(testName, cassandraPort))
       } else if (setup.jdbc) {
-        ClusterConfiguration ++ JdbcConfiguration
+        ClusterConfiguration
       } else if (setup.cluster) {
         ClusterConfiguration
       } else {
